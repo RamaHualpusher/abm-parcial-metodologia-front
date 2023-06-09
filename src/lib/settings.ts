@@ -1,6 +1,6 @@
 const settings = {
   api: {
-    personas: 'http://localhost:3000/api/personas',
+    URL: 'http://localhost:3000/api',
   },
 };
 

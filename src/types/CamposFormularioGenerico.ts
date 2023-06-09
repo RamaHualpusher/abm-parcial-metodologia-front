@@ -10,4 +10,5 @@ export interface GenericFormProps<T> {
   initialData: T;
   fields: FormField[];
   handleSubmit: (data: T) => void;
+  handleCancel: () => void;
 }

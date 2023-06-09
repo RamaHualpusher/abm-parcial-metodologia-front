@@ -1,79 +1,32 @@
+import DataLayerGeneric from "./DataLayerGeneric";
 import Persona from "../types/persona";
 import settings from "./settings";
 
-async function fnCreatePersona(persona: Persona) {
-  try {
-    // Create new persona
-    const newPersona = await fetch(
-      settings.api.personas,
-      {
-        body: JSON.stringify(persona),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-      }
-    );
-    // Return created persona
-    return newPersona;
-  } catch (error: any) {
-    throw error;
-  }
-};
+const personasURL = settings.api["URL"]+"/personas"; // URL cargada en Settings
+const GenericDataLayer = DataLayerGeneric<Persona>(personasURL);
 
-async function fnDeletePersona(id: string) {
-  try {
-    // Delete persona by given id
-    await fetch(`${settings.api.personas}/${id}`, { method: 'DELETE' });
-  } catch (error: any) {
-    throw error;
-  }
-};
+// Crear wrappers para las funciones en GenericDataLayer
+const fnCreatePersona = async (persona: Persona) => {
+  return await GenericDataLayer.create(persona);
+}
 
-async function fnFetchPersona(id: string) {
-  try {
-    // Fetch given persona
-    const response = await fetch(`${settings.api.personas}/${id}`);
-    const persona = await response.json();
-    // Return persona
-    return persona;
-  } catch (error: any) {
-    throw error;
-  }
-};
+const fnDeletePersona = async (id: string) => {
+  await GenericDataLayer.delete(id);
+}
 
-async function fnFetchPersonas() {
-  try {
-    // Fetch personas
-    const response = await fetch(settings.api.personas);
-    const personas = await response.json();
-    // Return personas
-    return personas;
-  } catch (error: any) {
-    throw error;
-  }
-};
+const fnFetchPersona = async (id: string) => {
+  return await GenericDataLayer.fetch(id);
+}
 
-async function fnUpdatePersona(id: string, persona: Persona) {
-  try {
-    // Update given persona
-    const editedPersona = await fetch(
-      `${settings.api.personas}/${id}`,
-      {
-        body: JSON.stringify(persona),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'PUT',
-      }
-    );
-    // Return edited persona
-    return editedPersona;
-  } catch (error: any) {
-    throw error;
-  }
-};
+const fnFetchPersonas = async () => {
+  return await GenericDataLayer.fetchAll();
+}
 
+const fnUpdatePersona = async (id: string, persona: Persona) => {
+  return await GenericDataLayer.update(id, persona);
+}
+
+// Crear el DataLayer con los nombres de las funciones originales
 const DataLayer = {
   create: {
     persona: fnCreatePersona,

@@ -3,7 +3,7 @@ import { Button, Form } from 'react-bootstrap';
 import { GenericFormProps } from '../../types/CamposFormularioGenerico';
 
 
-export const GenericForm = <T,>({ initialData, fields, handleSubmit }: GenericFormProps<T>) => {
+export const GenericForm = <T,>({ initialData, fields, handleSubmit, handleCancel }: GenericFormProps<T>) => {
   const [data, setData] = useState<T>(initialData);
 
   const handleChange = (key: keyof T) => (e: React.ChangeEvent<HTMLElement>) => {
@@ -19,6 +19,9 @@ export const GenericForm = <T,>({ initialData, fields, handleSubmit }: GenericFo
     e.preventDefault();
     handleSubmit(data);
   };
+
+  
+
 
   return (
     <Form onSubmit={submitForm}>
@@ -57,6 +60,9 @@ export const GenericForm = <T,>({ initialData, fields, handleSubmit }: GenericFo
       })}
       <Button variant="primary" type="submit">
         Submit
+      </Button>
+      <Button variant="secondary" type="button" onClick={handleCancel}>
+        Cancelar
       </Button>
     </Form>
   );

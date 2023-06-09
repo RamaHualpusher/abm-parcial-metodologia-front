@@ -28,6 +28,13 @@ const PersonaForm: React.FC<PersonaFormProps> = ({ persona }) => {
     navigate('/personas');
   };
 
+  // Manejar la acción de cancelar
+  const handleCancel = () => {
+    // Aquí puedes poner lo que quieras que suceda cuando se cancele el formulario.
+    // Por ejemplo, podrías redirigir al usuario a la página de 'personas'.
+    navigate('/personas');
+  };
+
   const fields: FormField[] = [
     { key: 'firstName', label: 'Nombre', type: 'text', required: true },
     { key: 'lastName', label: 'Apellido', type: 'text', required: true },
@@ -39,6 +46,7 @@ const PersonaForm: React.FC<PersonaFormProps> = ({ persona }) => {
       initialData={persona} 
       fields={fields} 
       handleSubmit={handleSubmit} 
+      handleCancel={handleCancel}
     />
   );
 };
