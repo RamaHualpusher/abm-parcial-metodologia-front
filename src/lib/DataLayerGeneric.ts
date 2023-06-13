@@ -1,44 +1,40 @@
 // Crear la función genérica para el manejo de datos
-const DataLayerGeneric = <T>(urlBase: string) => {
+const DataLayerGeneric = <T extends {id?: string}>(urlBase: string) => {
 
-  const fnCreate = async (obj: T) => {
-    const newObj = await fetch(
-      urlBase,
-      {
-        body: JSON.stringify(obj),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-      }
-    );
-    return newObj;
+  let initialData: T[] = [];
+
+  const loadInitialData = async () => {
+    const response = await fetch(urlBase);
+    initialData = await response.json();
   };
 
-  const fnDelete = async (id: string) => {
-    await fetch(`${urlBase}/${id}`, { method: 'DELETE' });
-  };
+  loadInitialData();
 
-  const fnFetch = async (id: string) => {
-    const response = await fetch(`${urlBase}/${id}`);
-    const obj = await response.json();
+  const fnCreate = (obj: T) => {
+    obj.id = (Math.random() * 10000).toFixed(0); // Genera un ID aleatorio.
+    const newObj = [...initialData, obj];
+    initialData = newObj;
     return obj;
   };
 
-  const fnFetchAll = async () => {
-    const response = await fetch(urlBase);
-    const objs = await response.json();
-    return objs;
+  const fnDelete = (id: string) => {
+    const filteredObj = initialData.filter((item: T) => item.id !== id);
+    initialData = filteredObj;
   };
 
-  const fnUpdate = async (id: string, obj: T) => {
-    const editedObj = await fetch(
-      `${urlBase}/${id}`,
-      {
-        body: JSON.stringify(obj),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'PUT',
-      }
-    );
-    return editedObj;
+  const fnFetch = (id: string) => {
+    const obj = initialData.find((item: T) => item.id === id);
+    return obj || null;
+  };
+
+  const fnFetchAll = () => {
+    return initialData;
+  };
+
+  const fnUpdate = (id: string, obj: Partial<T>) => {
+    const editedObj = initialData.map((item: T) => item.id === id ? {...item, ...obj} : item);
+    initialData = editedObj;
+    return obj;
   };
 
   return {

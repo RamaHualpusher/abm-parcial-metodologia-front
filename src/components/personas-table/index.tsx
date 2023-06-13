@@ -1,73 +1,86 @@
-import Button from 'react-bootstrap/Button';
-import * as React from 'react';
-import Table from 'react-bootstrap/Table';
+import React, { useCallback, useState, lazy, Suspense, useEffect } from 'react';
 
 import DataLayer from '../../lib/data-layer';
 import Persona from '../../types/persona';
+import { Action, Column } from '../../types/CamposTablaGenerica';
+import GenericTable from '../generic-table/GenericTable';
 
-const DeleteModal = React.lazy(() => import('../../components/delete-modal'));
+const DeleteModal = lazy(() => import('../../components/delete-modal'));
 
-interface PersonasTableProps {
-  personas: Persona[];
-}
+const PersonasTable: React.FC = () => {
+  const [personas, setPersonas] = useState<Persona[]>([]); // Estado para almacenar las personas
+  const [selectedPerson, setSelectedPerson] = useState<Persona | null>(null); // Persona seleccionada para eliminar
 
-const PersonasTable: React.FC<PersonasTableProps> = ({ personas }) => {
-  // State
-  const [selectedPerson, setSelectedPerson] = React.useState<Persona | null>(null);
-  const [filteredData, setFilteredData] = React.useState<Persona[]>(personas);
+  // Acciones disponibles para la tabla
+  const actions: Action = {
+    create: true,
+    update: true,
+    delete: true,
+  };
 
-  // Handlers
-  const deletePerson = React.useCallback((person: Persona) => {
-    setSelectedPerson(person);
-  }, [setSelectedPerson]);
-  const onDeleteModalCancel = React.useCallback(() => {
-    setSelectedPerson(null);
-  }, [setSelectedPerson]);
-  const onDeleteModalOk = React.useCallback(async () => {
-    await DataLayer.delete.persona(selectedPerson?.id!);
-    setFilteredData((preValue: Persona[]) => preValue.filter((pv: Persona) => pv.id !== selectedPerson?.id));
-    setSelectedPerson(null);
-  }, [selectedPerson, setSelectedPerson]);
+  // Columnas de la tabla
+  const columns: Column<Persona>[] = [
+    { title: 'Nombre', field: 'firstName' },
+    { title: 'Apellido', field: 'lastName' },
+    { title: 'Email', field: 'email' },
+  ];
 
-  // Render
+  // Carga inicial de personas
+  useEffect(() => {
+    const fetchPersonas = async () => {
+      const personas = await DataLayer.fetch.personas();
+      setPersonas(personas);
+    };
+
+    fetchPersonas();
+  }, []);
+
+  // Manejadores de eventos
+  const handleAdd = useCallback(() => {
+    // Navegar a la página de creación de persona
+  }, []);
+
+  const handleUpdate = useCallback((person: Persona) => {
+    // Navegar a la página de edición de persona con el id de la persona
+  }, []);
+
+  const handleDelete = useCallback((person: Persona) => {
+    setSelectedPerson(person); // Abrir el modal de confirmación de eliminación
+  }, []);
+
+  const onDeleteModalCancel = useCallback(() => {
+    setSelectedPerson(null); // Cerrar el modal de confirmación de eliminación
+  }, []);
+
+  const onDeleteModalOk = useCallback(async () => {
+    if (selectedPerson) {
+      await DataLayer.delete.persona(selectedPerson.id);
+      setPersonas(personas => personas.filter(p => p.id !== selectedPerson.id)); // Actualizar el estado de las personas
+      setSelectedPerson(null); // Cerrar el modal de confirmación de eliminación
+    }
+  }, [selectedPerson]);
+
+  // Renderizado
   return (
     <>
-      <Table bordered hover>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Email</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            filteredData.map((p: Persona) => (
-              <tr key={p.id} style={{ verticalAlign: 'middle' }}>
-                <td>{p.firstName}</td>
-                <td>{p.lastName}</td>
-                <td>{p.email}</td>
-                <td>
-                  <Button href={`/personas/${p.id}`} size="sm">Editar</Button>
-                  {' '}
-                  <Button onClick={() => deletePerson(p)} size="sm" variant="danger">Eliminar</Button>
-                </td>
-              </tr>
-            ))
-          }
-        </tbody>
-      </Table>
-      {
-        selectedPerson && (
+      <GenericTable
+        data={personas}
+        columns={columns}
+        actions={actions}
+        onAdd={handleAdd}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+      />
+      <Suspense fallback={<div>Loading...</div>}>
+        {selectedPerson && (
           <DeleteModal
             message={`Desea eliminar a ${selectedPerson.firstName} ${selectedPerson.lastName}?`}
             onCancel={onDeleteModalCancel}
             onOk={onDeleteModalOk}
             title="Eliminar Persona"
           />
-        )
-      }
+        )}
+      </Suspense>
     </>
   );
 };
