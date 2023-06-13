@@ -4,8 +4,10 @@ import DataLayer from '../../lib/data-layer';
 import Persona from '../../types/persona';
 import { Action, Column } from '../../types/CamposTablaGenerica';
 import GenericTable from '../generic-table/GenericTable';
+import { useNavigate } from 'react-router-dom';
 
 const DeleteModal = lazy(() => import('../../components/delete-modal'));
+const navigate = useNavigate();
 
 const PersonasTable: React.FC = () => {
   const [personas, setPersonas] = useState<Persona[]>([]); // Estado para almacenar las personas
@@ -38,10 +40,13 @@ const PersonasTable: React.FC = () => {
   // Manejadores de eventos
   const handleAdd = useCallback(() => {
     // Navegar a la página de creación de persona
+    navigate('/personas/crear');
   }, []);
 
   const handleUpdate = useCallback((person: Persona) => {
     // Navegar a la página de edición de persona con el id de la persona
+    navigate(`/personas/${person.id}`);
+    
   }, []);
 
   const handleDelete = useCallback((person: Persona) => {

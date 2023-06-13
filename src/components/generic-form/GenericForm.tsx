@@ -11,21 +11,17 @@ export const GenericForm = <T,>({ initialData, fields, handleSubmit, handleCance
       ...data,
       [key]: (e.target as HTMLInputElement).value
     });
-};
-
-
+  };
 
   const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleSubmit(data);
   };
 
-  
-
-
   return (
     <Form onSubmit={submitForm}>
       {fields.map((field) => {
+        const value = data ? (data[field.key as keyof T] as unknown as string) : '';
         switch (field.type) {
           case 'text':
           case 'email':
@@ -36,7 +32,7 @@ export const GenericForm = <T,>({ initialData, fields, handleSubmit, handleCance
                 <Form.Control
                   required={field.required}
                   type={field.type}
-                  value={data[field.key as keyof T] as unknown as string}
+                  value={value}
                   onChange={handleChange(field.key as keyof T)}
                 />
               </Form.Group>
@@ -45,7 +41,7 @@ export const GenericForm = <T,>({ initialData, fields, handleSubmit, handleCance
             return (
               <Form.Group key={field.key} controlId={field.key}>
                 <Form.Label>{field.label}</Form.Label>
-                <Form.Control as="select" value={data[field.key as keyof T] as unknown as string} onChange={handleChange(field.key as keyof T)}>
+                <Form.Control as="select" value={value} onChange={handleChange(field.key as keyof T)}>
                   {field.options?.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -66,4 +62,5 @@ export const GenericForm = <T,>({ initialData, fields, handleSubmit, handleCance
       </Button>
     </Form>
   );
+
 };
